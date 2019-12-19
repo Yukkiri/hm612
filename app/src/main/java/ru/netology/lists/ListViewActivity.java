@@ -26,6 +26,7 @@ public class ListViewActivity extends AppCompatActivity {
     private List<Map<String, String>> content = new ArrayList();
     private BaseAdapter listContentAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private ArrayList<Integer> deleteList = new ArrayList<>();
 
     private final String TEXT = "SAVED_TEXT";
     private final String EMPTY = ":(";
@@ -54,24 +55,6 @@ public class ListViewActivity extends AppCompatActivity {
         list.setAdapter(listContentAdapter);
     }
 
-    /*private void init() {
-        saveText();
-
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        swipeRefreshLayout = findViewById(R.id.swipe_container);
-        swipeRefreshLayout.setOnRefreshListener(onRefreshListener);
-        ListView list = findViewById(R.id.list);
-
-
-        list.setOnItemClickListener(listViewOnItemClickListener);
-
-        prepareContent();
-
-        listContentAdapter = createAdapter(content);
-        list.setAdapter(listContentAdapter);
-    }*/
 
     @NonNull
     private BaseAdapter createAdapter(List<Map<String, String>> values) {
@@ -104,6 +87,7 @@ public class ListViewActivity extends AppCompatActivity {
     AdapterView.OnItemClickListener listViewOnItemClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            deleteList.add(i);
             content.remove(i);
             listContentAdapter.notifyDataSetChanged();
         }
@@ -121,5 +105,24 @@ public class ListViewActivity extends AppCompatActivity {
         }
     };
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putIntegerArrayList("list", deleteList);
+        super.onSaveInstanceState(outState);
+    }
 
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        deleteList = savedInstanceState.getIntegerArrayList("list");
+        deleteStrings(deleteList);
+        super.onRestoreInstanceState(savedInstanceState);
+    }
+
+    private void deleteStrings(ArrayList<Integer> deleteList){
+        for (int i = 0; i < deleteList.size(); i++){
+            int j = deleteList.get(i);
+            content.remove(j);
+            listContentAdapter.notifyDataSetChanged();
+        }
+    }
 }
